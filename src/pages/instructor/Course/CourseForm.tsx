@@ -11,6 +11,9 @@ import "react-toastify/dist/ReactToastify.css";
 import LessonsSection from "./LessonSection";
 import { Lesson } from "../../../types/ICourse";
 import { courseValidationSchema } from "../../../utilities/validation/courseValidationSchema";
+import { useAppDispatch } from "../../../hooks/accessHook";
+import { addCourse } from "../../../redux/store/actions/course/addCourseAction";
+import { useNavigate } from "react-router-dom";
 
 
 const CourseForm = () => {
@@ -18,6 +21,8 @@ const CourseForm = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const { data } = useSelector((state: RootState) => state.user);
+  const dispatch=useAppDispatch()
+  const navigate=useNavigate()
 
   const handlePublish = async () => {
     if (formikRef.current) {
@@ -95,6 +100,17 @@ const CourseForm = () => {
         const finalValues = { ...values, thumbnail: imageUrl, lessons: uploadedLessons };
 
         console.log("Submitting form:", finalValues);
+
+        const results = await dispatch(addCourse(finalValues))
+        console.log(results,"gsduhbadghdsjbsdjbhjdsbjbdsjbsdfj")
+        if(!results.payload.success){
+          toast.error(results.payload.message ||"Course Adding failed,try again.....")
+          return
+        }
+
+        toast.success(results.payload.message || "ghcghchgccxgfddgfd")
+        navigate("/instructor/courses",{replace:true})
+
         // Call your API or backend service to save finalValues
       } catch (error) {
         console.error("Error submitting form:", error);
