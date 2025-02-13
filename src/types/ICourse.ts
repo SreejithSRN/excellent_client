@@ -7,6 +7,8 @@ export interface CourseEntity{
     language?: Language;
     level?: Level;
     pricing?: Pricing;
+    lessons?:Lesson[];
+    isBlocked?:boolean;
 
 }
 
@@ -27,4 +29,11 @@ interface Pricing {
 export enum PricingType {
     Free = 'free',
     Paid = 'paid'
+}
+
+export interface Lesson {   
+    title?: string;
+    description?: string; 
+    video?: File|string;
+    duration?: string;    
 }

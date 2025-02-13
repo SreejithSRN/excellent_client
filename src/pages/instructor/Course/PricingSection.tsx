@@ -1,75 +1,69 @@
 import React from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { Field, ErrorMessage } from "formik";
 
-const PricingSection: React.FC = () => {
-  // Formik validation schema
-  const validationSchema = Yup.object({
-    pricingType: Yup.string().required("Pricing type is required."),
-    price: Yup.number()
-      .typeError("Price must be a number.")
-      .positive("Price must be a positive number.")
-      .integer("Price must be an integer.")
-      .required("Price is required."),
-  });
 
-  const formik = useFormik({
-    initialValues: {
-      pricingType: "",
-      price: "",
-    },
-    validationSchema,
-    validateOnChange: true, // Validate fields as they are updated
-    validateOnBlur: true, // Validate fields when they lose focus
-    onSubmit: () => {}, // No action needed for submission
-  });
+interface PricingSectionProps {
+  values: any;
+  setFieldValue: (field: string, value: any) => void;
+  touched: any;
+  errors: any;
+}
 
+const PricingSection: React.FC<PricingSectionProps> = ({
+  values,
+  setFieldValue,
+  touched,
+  errors,
+}) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Pricing Type */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Pricing Type
         </label>
-        <select
-          id="pricingType"
+        <Field
+          as="select"
           name="pricingType"
-          value={formik.values.pricingType}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          className="mt-1 block w-full rounded-md border-gray-200 border-2 shadow-md focus:border-blue-500 focus:ring-blue-500"
+          className={`mt-1 block w-full rounded-md border-2 shadow-md 
+            ${touched.pricingType && errors.pricingType ? "border-red-500" : "border-gray-200"}`}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            const selectedValue = e.target.value;
+            setFieldValue("pricingType", selectedValue);
+
+            // If "free" is selected, set price to 0 automatically
+            if (selectedValue === "free") {
+              setFieldValue("price", 0);
+            } else {
+              setFieldValue("price", ""); // Reset price if paid is selected
+            }
+          }}
         >
           <option value="" disabled>
             Select a pricing type
           </option>
           <option value="free">Free</option>
           <option value="paid">Paid</option>
-        </select>
-        {formik.touched.pricingType && formik.errors.pricingType && (
-          <p className="text-red-500 text-sm mt-1">{formik.errors.pricingType}</p>
-        )}
+        </Field>
+        <ErrorMessage name="pricingType" component="p" className="text-red-500 text-sm mt-1" />
       </div>
 
+      {/* Price */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Price</label>
-        <input
-          id="price"
-          name="price"
+        <Field
           type="number"
-          value={formik.values.price}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+          name="price"
           placeholder="Enter price"
-          className="mt-1 block w-full rounded-md border-gray-200 border-2 shadow-md focus:border-blue-500 focus:ring-blue-500"
+          disabled={values.pricingType === "free"} // Disable if pricing type is free
+          className={`mt-1 block w-full rounded-md border-2 shadow-md 
+            ${touched.price && errors.price ? "border-red-500" : "border-gray-200"} 
+            ${values.pricingType === "free" ? "bg-gray-100 cursor-not-allowed" : ""}`}
         />
-        {formik.touched.price && formik.errors.price && (
-          <p className="text-red-500 text-sm mt-1">{formik.errors.price}</p>
-        )}
+        <ErrorMessage name="price" component="p" className="text-red-500 text-sm mt-1" />
       </div>
     </div>
   );
 };
 
 export default PricingSection;
-
-
-

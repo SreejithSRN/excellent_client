@@ -63,14 +63,14 @@ export interface SignupFormData {
   firstName: string;
   lastName: string;
   name: string;
-  profile: Profile; // Remove `?` if always expected
-  contact: Contact; // Remove `?` if always expected
+  profile: Profile; 
+  contact: Contact; 
   profession?: Profession;
-  qualification: Qualification; // Remove `?` if always expected
-  role: Role; // Remove `?` if always expected
+  qualification: Qualification; 
+  role: Role; 
   profit?: string;
   isGAuth?: boolean;
-  cv: File |string; // Remove `string` if only a `File` is allowed
+  cv: File |string; 
   isVerified?: boolean;
   isRejected?: boolean;
   isRequested?: boolean;
