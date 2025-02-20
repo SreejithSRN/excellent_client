@@ -1,7 +1,7 @@
 export interface CourseEntity{
     _id?:string;
     title?: string;
-    description?: string;
+    description?: string;    
     categoryRef?: string;
     instructorRef?: string;
     language?: Language;
@@ -9,6 +9,7 @@ export interface CourseEntity{
     pricing?: Pricing;
     lessons?:Lesson[];
     isBlocked?:boolean;
+    thumbnail?:string
 
 }
 
@@ -31,7 +32,8 @@ export enum PricingType {
     Paid = 'paid'
 }
 
-export interface Lesson {   
+export interface Lesson { 
+    _id?:string;  
     title?: string;
     description?: string; 
     video?: File|string;

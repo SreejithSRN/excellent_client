@@ -22,25 +22,49 @@ export const courseValidationSchema = Yup.object({
     .integer("Price must be an integer.")
     .required("Price is required."),
   thumbnail: Yup.mixed().required("Course thumbnail is required."),
+
   lessons: Yup.array()
-    .of(
-      Yup.object().shape({
-        title: Yup.string().required("Lesson title is required").max(100),
-        description: Yup.string().required("Lesson description is required").max(500),
-        video: Yup.mixed()
-          .required("Video file is required")
-          .test(
-            "fileType",
-            "Only video files are allowed",
-            (value) =>
-              value &&
+  .of(
+    Yup.object().shape({
+      title: Yup.string().required("Lesson title is required").max(100),
+      description: Yup.string().required("Lesson description is required").max(500),
+      video: Yup.mixed()
+        .required("Video file is required")
+        .test(
+          "fileType",
+          "Only video files are allowed",
+          (value) =>
+            typeof value === "string" || // ✅ Skip validation if already a string (URL or filename)
+            (value &&
               value instanceof File &&
-              ["video/mp4", "video/mov", "video/avi", "video/mkv"].includes(value.type)
-          ),
-        duration: Yup.string()
-          .required("Duration is required")
-          .matches(/^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/, "Duration must be in HH:MM:SS format"),
-      })
-    )
-    .min(1, "At least one lesson is required"), 
+              ["video/mp4", "video/mov", "video/avi", "video/mkv"].includes(value.type))
+        ),
+      duration: Yup.string()
+        .required("Duration is required")
+        .matches(/^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/, "Duration must be in HH:MM:SS format"),
+    })
+  )
+  .min(1, "At least one lesson is required"),
+
+  // lessons: Yup.array()
+  //   .of(
+  //     Yup.object().shape({
+  //       title: Yup.string().required("Lesson title is required").max(100),
+  //       description: Yup.string().required("Lesson description is required").max(500),
+  //       video: Yup.mixed()
+  //         .required("Video file is required")
+  //         .test(
+  //           "fileType",
+  //           "Only video files are allowed",
+  //           (value) =>
+  //             value &&
+  //             value instanceof File &&
+  //             ["video/mp4", "video/mov", "video/avi", "video/mkv"].includes(value.type)
+  //         ),
+  //       duration: Yup.string()
+  //         .required("Duration is required")
+  //         .matches(/^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/, "Duration must be in HH:MM:SS format"),
+  //     })
+  //   )
+  //   .min(1, "At least one lesson is required"), 
 });

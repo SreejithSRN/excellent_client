@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FormikErrors, FormikTouched } from "formik";
 
 interface FormValues {
-  thumbnail: File | null;
+  thumbnail: File | null|string;
 }
 
 interface ThumbnailUploadProps {
@@ -22,6 +22,16 @@ const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
   errors,
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof values.thumbnail === "string") {
+      setImagePreview(values.thumbnail);
+    } else if (values.thumbnail instanceof File) {
+      const objectUrl = URL.createObjectURL(values.thumbnail);
+      setImagePreview(objectUrl);
+
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [values.thumbnail]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.[0] || null;

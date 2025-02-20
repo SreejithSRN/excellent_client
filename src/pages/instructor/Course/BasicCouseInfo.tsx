@@ -118,7 +118,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({
             </option>
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
+            <option value="expert">Advanced</option>
           </Field>
           {touched.level && errors.level && (
             <p className="text-red-500 text-sm">{errors.level}</p>

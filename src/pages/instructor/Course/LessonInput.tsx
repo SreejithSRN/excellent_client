@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Minus, Video } from "lucide-react";
 
 interface LessonInputProps {
@@ -6,7 +6,7 @@ interface LessonInputProps {
   values: {
     title: string;
     description: string;
-    video: File | null;
+    video: File | null|string;
     duration: string;
   };
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
@@ -24,6 +24,13 @@ const LessonInput: React.FC<LessonInputProps> = ({
   errors,
 }) => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+
+   // ✅ Set preview if video exists (useful for editing)
+   useEffect(() => {
+    if (values.video && typeof values.video === "string") {
+      setVideoPreview(values.video); // Show existing video on edit
+    }
+  }, [values.video]);
 
   // Convert seconds to HH:MM:SS format
   const formatDuration = (seconds: number) => {
@@ -150,3 +157,6 @@ const LessonInput: React.FC<LessonInputProps> = ({
 };
 
 export default LessonInput;
+
+
+
