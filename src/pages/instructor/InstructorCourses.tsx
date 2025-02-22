@@ -1,38 +1,58 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Clock, Plus, Search, Star, Users } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
 import { getCourses } from "../../redux/store/actions/course/getCoursesAction";
+import { toggleBlockCourse } from "../../redux/store/actions/course/toggleBlockCourse";
+import ConfirmationModal from "../../components/admin/ConfirmationModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { getCoursesForInstructor } from "../../redux/store/actions/course/getCoursesForInstructorAction";
 
 const InstructorCourses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useAppDispatch();
   const { data } = useSelector((state: RootState) => state.user);
+  const location = useLocation();
   console.log(data);
 
-  // State for courses, loading, and pagination
   const [courses, setCourses] = useState<CourseEntity[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalCount: 1,
     categoryPerPage: 3,
   });
 
-  // Fetch courses based on pagination
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const response = await dispatch(
-          getCourses({
-            page: pagination.currentPage,
-            limit: pagination.categoryPerPage,
-          })
-        );
+        let response;
+        if (location.pathname === "/instructor/courses") {
+          // ✅ Call getCourses when on '/instructor/courses'
+
+          response = await dispatch(
+            getCoursesForInstructor({
+              page: pagination.currentPage,
+              limit: pagination.categoryPerPage,
+              id: data?._id || "",
+            })
+          );
+        } else {
+          // ✅ Call getCoursesForInstructor for all other paths
+          response = await dispatch(
+            getCourses({
+              page: pagination.currentPage,
+              limit: pagination.categoryPerPage,
+            })
+          );
+        }
+
         if (response.payload.success) {
           setCourses(response.payload.data);
           setPagination((prev) => ({
@@ -48,9 +68,14 @@ const InstructorCourses = () => {
     };
 
     fetchCourses();
-  }, [dispatch, pagination.currentPage, pagination.categoryPerPage]);
+  }, [
+    dispatch,
+    pagination.currentPage,
+    pagination.categoryPerPage,
+    data?._id,
+    location.pathname,
+  ]);
 
-  // Pagination controls
   const totalPages = Math.ceil(
     pagination.totalCount / pagination.categoryPerPage
   );
@@ -64,19 +89,39 @@ const InstructorCourses = () => {
     }
   };
 
+  const handleBlockUnblock = async (id: string) => {
+    try {
+      const response = await dispatch(toggleBlockCourse(id));
+      if (response.payload.success) {
+        setCourses((prevCourses) =>
+          prevCourses.map((course) =>
+            course._id === id
+              ? { ...course, isBlocked: !course.isBlocked }
+              : course
+          )
+        );
+      }
+      toast.success(response.payload.message);
+    } catch (error) {
+      console.error("Failed to toggle course block:", error);
+    }
+  };
+
   return (
-    <div>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Courses</h1>
-        <Link
-          to="/instructor/create-course"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Create Course
-        </Link>
-      </div>
+    <div className={location.pathname === "/courses" ? "pt-20 px-4" : "px-4"}>
+      {data?.role === "instructor" && (
+        <div className="flex justify-between items-center mb-6">
+          <ToastContainer />
+          <h1 className="text-2xl font-bold">My Courses</h1>
+          <Link
+            to="/instructor/create-course"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Create Course
+          </Link>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="mb-6">
@@ -92,7 +137,7 @@ const InstructorCourses = () => {
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading / Empty State */}
       {loading ? (
         <div className="text-center py-6">Loading...</div>
       ) : courses.length === 0 ? (
@@ -122,7 +167,7 @@ const InstructorCourses = () => {
                 <img
                   src={course.thumbnail}
                   alt={course.title}
-                  className="w-full h-48 "
+                  className="w-full h-48 object-cover"
                 />
               </div>
               <div className="p-4">
@@ -153,12 +198,10 @@ const InstructorCourses = () => {
                   </div>
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
-                    {/* <span>{course.studentsEnrolled?.length || 0} students</span> */}
                     <span>{0} students</span>
                   </div>
                   <div className="flex items-center">
                     <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current" />
-                    {/* <span>{course.rating|| "0.0"}</span> */}
                     <span>{"0.0"}</span>
                   </div>
                 </div>
@@ -169,25 +212,57 @@ const InstructorCourses = () => {
                       ? `Rs ${course.pricing.amount}`
                       : "Free"}
                   </span>
-                  <div className="space-x-2">
-                    {/* <button className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
-                      Edit
-                    </button> */}
+                  <div className="flex items-center space-x-2">
+                    {(data?.role === "instructor" && location.pathname === "/instructor/courses") && (
+                      <Link
+                        to={`/instructor/courseform/${course._id}`}
+                        state={{ course }}
+                        className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
+                      >
+                        Edit
+                      </Link>
+                    )}
+                    
 
                     <Link
-                      to={`/instructor/courseform/${course._id}`}
-                      state={{ course }} // Passing the entire course object
-                      className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      Edit
-                    </Link>
-
-                    <Link
-                      to={`/instructor/courses/${course._id}`}
+                      to={
+                        data?.role === "instructor"
+                          ? `/instructor/courses/${course._id}`
+                          : data?.role === "student"
+                          ? `/student/courses/${course._id}`
+                          : `/detailcourses/${course._id}`
+                      }
                       className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
                       View
                     </Link>
+
+                    {(!data||data?.role === "student") && (
+                      <Link
+                        to={`/instructor/coursebuy/${course._id}`}
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Buy
+                      </Link>
+                    )}
+
+
+
+                    {data?.role === "instructor" && location.pathname === "/instructor/courses" && (
+                      <ConfirmationModal
+                        triggerText={course.isBlocked ? "Unblock" : "Block"}
+                        title={`${
+                          course.isBlocked ? "Unblock" : "Block"
+                        } Course`}
+                        description={`Are you sure you want to ${
+                          course.isBlocked ? "unblock" : "block"
+                        } the course "${course.title}"?`}
+                        status={course.isBlocked ? "unblock" : "block"}
+                        onConfirm={() =>
+                          course._id && handleBlockUnblock(course._id)
+                        }
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -195,7 +270,6 @@ const InstructorCourses = () => {
           ))}
         </div>
       )}
-
       {/* Pagination Section */}
       <div className="flex justify-between items-center mt-6">
         <button

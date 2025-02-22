@@ -182,10 +182,12 @@ const CategoriesPage = () => {
                   description={`Are you sure you want to ${
                     category.isBlocked ? "unblock" : "block"
                   } the category "${category.name}"?`}
+                  status={category.isBlocked ? "unblock" : "block"} 
                   onConfirm={() => handleBlockUnblock(category._id)}
                 />
                 <button
-                  className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600"
+                  // className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600"
+                  className="px-3 py-1 text-sm border bg-orange-600 border-gray-300 rounded hover:bg-gray-50"
                   onClick={() => {
                     setCurrentCategory(category);
                     setModalOpen(true);

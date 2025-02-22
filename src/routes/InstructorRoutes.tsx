@@ -18,13 +18,12 @@ export default function InstructorRoutes() {
           <Route path="/" element={<InstructorLayout />}>
             <Route index element={<InstructorDash />} />
             <Route path="courses" element={<InstructorCourses />} />
+            <Route path="allcourses" element={<InstructorCourses />} />
             <Route path="assessments" element={< InstructorAssessments/>} />
             <Route path="messages" element={<InstructorChat />} />
             <Route path="create-course" element={<CreateCourse />} />
-
             <Route path="courses/:id" element={<CourseDetails />} />
-            <Route path="courseform/:id" element={<CourseForm />} />
-
+            <Route path="courseform/:id" element={<CourseForm />} /> 
             <Route path="profile/*" >
           <Route index element={<ProfilePage/>}/>
           {/* <Route path="edit" element={<ProfileEditPage/>} />*/}

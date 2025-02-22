@@ -39,6 +39,8 @@ import StudentAssessments from "../pages/student/StudentAssessments";
 import StudentsChat from "../pages/student/StudentsChat";
 import StudentsSetting from "../pages/student/StudentsSetting";
 import ProfilePage from "../pages/common/ProfilePage";
+import InstructorCourses from "../pages/instructor/InstructorCourses";
+import CourseDetails from "../pages/common/CourseDetails";
 // import ProfileEditPage from "../pages/common/ProfileEditPage";
 
 function StudentRoutes() {
@@ -47,6 +49,9 @@ function StudentRoutes() {
       <Route path="/" element={<StudentLayout />}>
         <Route index element={<StudentDash />} />
         <Route path="mycourses" element={<StudentCourses />} />
+        <Route path="courses" element={<InstructorCourses />} />
+        <Route path="allcourses" element={<InstructorCourses />} />
+        <Route path="courses/:id" element={<CourseDetails />} />
         <Route path="assessments" element={<StudentAssessments />} />
         <Route path="chat" element={<StudentsChat />} />
         <Route path="settings" element={<StudentsSetting />} />

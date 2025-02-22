@@ -237,7 +237,9 @@ const CourseForm = () => {
                     </span>
                     {uploadProgress}% Uploaded...
                   </>
-                ) : (
+                ) : course ? (
+                  "Edit Course"
+                ): (
                   "Publish Course"
                 )}
               </button>

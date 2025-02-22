@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Filter } from "lucide-react";
-import ConfirmationModal from "../../components/admin/ConfirmationModal";
+
 import { useAppDispatch } from "../../hooks/accessHook";
 import { getInstructors } from "../../redux/store/actions/auth/getInstructors"; // Replace with your actual action
 import { SignupFormData } from "../../types";
 import { blockUnblock } from "../../redux/store/actions/auth/blockUnblock";
 import { approveReject } from "../../redux/store/actions/auth";
+import ConfirmationModal from "../../components/admin/ConfirmationModal";
 
 const InstructorsPage = () => {
   const [data, setData] = useState<SignupFormData[]>([]);
@@ -268,6 +269,7 @@ const InstructorsPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 space-y-2">
+                    {/* Approve/Reject Button with Confirmation Modal */}
                     <ConfirmationModal
                       triggerText={instructor.isRejected ? "Approve" : "Reject"}
                       title={`${
@@ -275,12 +277,16 @@ const InstructorsPage = () => {
                       } Instructor`}
                       description={`Are you sure you want to ${
                         instructor.isRejected ? "approve" : "reject"
-                      } instructor ${instructor.email}?`}
-                      onConfirm={() =>
-                        instructor._id && handleApprovalToggle(instructor.email)
-                      }
+                      } ${
+                        instructor.firstName ||
+                        instructor.name ||
+                        "this instructor"
+                      }?`}
+                      status={instructor.isRejected ? "approve" : "reject"}
+                      onConfirm={() => handleApprovalToggle(instructor.email)}
                     />
 
+                    {/* Block/Unblock Button with Confirmation Modal */}
                     <ConfirmationModal
                       triggerText={instructor.isBlocked ? "Unblock" : "Block"}
                       title={`${
@@ -288,9 +294,13 @@ const InstructorsPage = () => {
                       } Instructor`}
                       description={`Are you sure you want to ${
                         instructor.isBlocked ? "unblock" : "block"
-                      } instructor ${instructor.email}?`}
+                      } ${
+                        instructor.firstName ||
+                        instructor.name ||
+                        "this instructor"
+                      }?`}
+                      status={instructor.isBlocked ? "unblock" : "block"}
                       onConfirm={() =>
-                        instructor._id &&
                         handleBlockUnblockToggle(instructor.email)
                       }
                     />

@@ -2,8 +2,8 @@ export interface CourseEntity{
     _id?:string;
     title?: string;
     description?: string;    
-    categoryRef?: string;
-    instructorRef?: string;
+    categoryRef?: Category;
+    instructorRef?: Instructor; 
     language?: Language;
     level?: Level;
     pricing?: Pricing;
@@ -39,3 +39,14 @@ export interface Lesson {
     video?: File|string;
     duration?: string;    
 }
+
+export interface Instructor {
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+  }
+  export interface Category {
+    name?: string;
+  }
+  
+  

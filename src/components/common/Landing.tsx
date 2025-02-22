@@ -6,8 +6,6 @@ import { RootState } from '../../redux';
 
 const Landing = () => {
   const data = useSelector((state: RootState) => state.user);
-
-  console.log(data,"this is from landing page...................................")
   const location = useLocation();
   const message = location.state?.message || "";  
   return (

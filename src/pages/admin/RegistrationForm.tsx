@@ -24,6 +24,8 @@ import {
   UserCircle,
 } from "lucide-react";
 import ImageUpload from "../../utilities/axios/cloudinary";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RegistrationForm = () => {
   const { data } = useSelector((state: RootState) => state.user);
@@ -76,6 +78,7 @@ const RegistrationForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+       <ToastContainer />
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}

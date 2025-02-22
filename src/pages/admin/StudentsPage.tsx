@@ -220,6 +220,7 @@ const StudentsPage = () => {
                       description={`Are you sure you want to ${
                         student.isBlocked ? "unblock" : "block"
                       } student ${student.email}?`}
+                      status={student.isBlocked ? "unblock" : "block"}
                       onConfirm={() =>
                         student._id && handleBlockUnblock(student.email)
                       }
@@ -261,6 +262,9 @@ const StudentsPage = () => {
 };
 
 export default StudentsPage;
+
+
+
 
 //......................ORIGINAL JAN 22..........................
 

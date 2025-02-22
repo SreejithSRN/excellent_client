@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { Clock, PlayCircle, Loader2 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
 import { getCoursesById } from "../../redux/store/actions/course/getCourseByIdAction";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
 
 const CourseDetails = () => {
   const { id } = useParams();
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();  
+  const location=useLocation()
   const [course, setCourse] = useState<CourseEntity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { data } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -20,6 +24,7 @@ const CourseDetails = () => {
 
       try {
         const response = await dispatch(getCoursesById(id));
+        
         if (response.payload.success) {
           setCourse(response.payload.data);
         } else {
@@ -35,6 +40,8 @@ const CourseDetails = () => {
 
     fetchCourse();
   }, [dispatch, id]);
+
+  
   console.log(course, " tatatatata");
 
   if (loading)
@@ -52,7 +59,10 @@ const CourseDetails = () => {
   if (!course) return <div className="text-center py-6">Course not found</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className={location.pathname === `/detailcourses/${course._id}` ? "pt-28 px-4 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg" : "max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"}>
+
+
+  
       {/* Course Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
         <img
@@ -79,12 +89,16 @@ const CourseDetails = () => {
               ? `Rs ${course.pricing.amount}`
               : "Free"}
           </p>
+
           <p className="mt-1 text-gray-700">
             <strong>Instructor:</strong>{" "}
             {course.instructorRef
               ? `${course.instructorRef.firstName ?? ""} ${
                   course.instructorRef.lastName?.trim() ?? ""
-                }`.trim() || course.instructorRef.name
+                }`.trim() || "Unknown"
+              : data?.role === "instructor"
+              ? `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim() ||
+                "Unknown"
               : "Unknown"}
           </p>
 
@@ -107,11 +121,14 @@ const CourseDetails = () => {
       </div>
 
       {/* Lessons Section */}
-      <div className="mt-8">
+      <div className="mt-8">      
         <h2 className="text-2xl font-semibold text-gray-900">Course Lessons</h2>
         {course.lessons && course.lessons.length > 0 ? (
           <ul className="mt-4 space-y-4">
-            {course.lessons.map((lesson) => (
+            {(data?.role === "student" ||!data
+              ? course.lessons.slice(0, 1)
+              : course.lessons
+            ).map((lesson) => (
               <li
                 key={lesson._id}
                 className="p-5 bg-gray-100 rounded-lg shadow-sm"

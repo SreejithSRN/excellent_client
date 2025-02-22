@@ -25,6 +25,8 @@ import { useAppDispatch } from "./hooks/accessHook";
 import { getUserDataAction, logoutAction } from "./redux/store/actions/auth";
 import RegistrationForm from "./pages/admin/RegistrationForm";
 import ForgotPassword from "./pages/common/ForgotPassword";
+import InstructorCourses from "./pages/instructor/InstructorCourses";
+import CourseDetails from "./pages/common/CourseDetails";
 
 
 function App() {
@@ -61,7 +63,6 @@ function AppContent() {
     }
   }, [dispatch, data]);
 
-  console.log(data,"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
 
   const isProtectedRoute = ["/student", "/admin", "/instructor"].some((path) =>
     location.pathname.includes(path)
@@ -82,7 +83,9 @@ function AppContent() {
               data ? <Navigate to={getRedirectPath(data.role)} /> : <Landing />
             }
           />
-          <Route path="/courses" element={<Courses />} />
+          {/* <Route path="/courses" element={<Courses />} /> */}
+          <Route path="/courses" element={<InstructorCourses/>} />
+          <Route path="/detailcourses/:id" element={<CourseDetails/>} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/login" element={<Login />} />
