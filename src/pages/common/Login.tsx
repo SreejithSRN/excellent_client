@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import logo from "../../assets/EXCELLENT LOGO.png";
-import { Link,  useNavigate } from "react-router-dom";
+import { Link,  useLocation,  useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { loginValidationSchema } from "../../utilities/validation/logInSchema"; // Update path as needed
 import { useAppDispatch } from "../../hooks/accessHook";
@@ -13,6 +13,15 @@ import "react-toastify/dist/ReactToastify.css";
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate=useNavigate()
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+      // Clear the message from history state after displaying
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -31,7 +40,7 @@ const Login: React.FC = () => {
       }else{
         toast.error(response?.payload?.message)        
       }
-      console.log(response, "araaaa avideeee.....")     
+      // console.log(response, "araaaa avideeee.....")     
     },
   });
 

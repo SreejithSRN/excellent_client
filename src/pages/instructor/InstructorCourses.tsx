@@ -17,11 +17,8 @@ const InstructorCourses = () => {
   const dispatch = useAppDispatch();
   const { data } = useSelector((state: RootState) => state.user);
   const location = useLocation();
-  console.log(data);
-
   const [courses, setCourses] = useState<CourseEntity[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalCount: 1,
@@ -34,8 +31,6 @@ const InstructorCourses = () => {
       try {
         let response;
         if (location.pathname === "/instructor/courses") {
-          // ✅ Call getCourses when on '/instructor/courses'
-
           response = await dispatch(
             getCoursesForInstructor({
               page: pagination.currentPage,
@@ -44,7 +39,6 @@ const InstructorCourses = () => {
             })
           );
         } else {
-          // ✅ Call getCoursesForInstructor for all other paths
           response = await dispatch(
             getCourses({
               page: pagination.currentPage,
@@ -213,16 +207,16 @@ const InstructorCourses = () => {
                       : "Free"}
                   </span>
                   <div className="flex items-center space-x-2">
-                    {(data?.role === "instructor" && location.pathname === "/instructor/courses") && (
-                      <Link
-                        to={`/instructor/courseform/${course._id}`}
-                        state={{ course }}
-                        className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
-                      >
-                        Edit
-                      </Link>
-                    )}
-                    
+                    {data?.role === "instructor" &&
+                      location.pathname === "/instructor/courses" && (
+                        <Link
+                          to={`/instructor/courseform/${course._id}`}
+                          state={{ course }}
+                          className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
+                        >
+                          Edit
+                        </Link>
+                      )}
 
                     <Link
                       to={
@@ -237,7 +231,7 @@ const InstructorCourses = () => {
                       View
                     </Link>
 
-                    {(!data||data?.role === "student") && (
+                    {(!data || data?.role === "student") && (
                       <Link
                         to={`/instructor/coursebuy/${course._id}`}
                         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -246,23 +240,22 @@ const InstructorCourses = () => {
                       </Link>
                     )}
 
-
-
-                    {data?.role === "instructor" && location.pathname === "/instructor/courses" && (
-                      <ConfirmationModal
-                        triggerText={course.isBlocked ? "Unblock" : "Block"}
-                        title={`${
-                          course.isBlocked ? "Unblock" : "Block"
-                        } Course`}
-                        description={`Are you sure you want to ${
-                          course.isBlocked ? "unblock" : "block"
-                        } the course "${course.title}"?`}
-                        status={course.isBlocked ? "unblock" : "block"}
-                        onConfirm={() =>
-                          course._id && handleBlockUnblock(course._id)
-                        }
-                      />
-                    )}
+                    {data?.role === "instructor" &&
+                      location.pathname === "/instructor/courses" && (
+                        <ConfirmationModal
+                          triggerText={course.isBlocked ? "Unblock" : "Block"}
+                          title={`${
+                            course.isBlocked ? "Unblock" : "Block"
+                          } Course`}
+                          description={`Are you sure you want to ${
+                            course.isBlocked ? "unblock" : "block"
+                          } the course "${course.title}"?`}
+                          status={course.isBlocked ? "unblock" : "block"}
+                          onConfirm={() =>
+                            course._id && handleBlockUnblock(course._id)
+                          }
+                        />
+                      )}
                   </div>
                 </div>
               </div>

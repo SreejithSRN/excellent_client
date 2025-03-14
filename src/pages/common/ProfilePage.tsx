@@ -95,7 +95,7 @@ const ProfilePage: React.FC = () => {
         data?.profile.avatar ||
         "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&q=80&w=300&h=300",
 
-      gender: data?.profile.gender || "Not Updated",
+      gender: data?.profile.gender || "",
       dateOfBirth: data?.profile.dateOfBirth || "Not Updated",
     },
     contact: {
@@ -107,7 +107,7 @@ const ProfilePage: React.FC = () => {
         instagram: data?.contact.social.instagram || "Not Updated",
       },
     },
-    profession: data?.profession || "Not Updated",
+    profession: data?.profession || "not working",
     qualification: data?.qualification || "Not Updated",
     cv: data?.cv || "Not Updated",
   };

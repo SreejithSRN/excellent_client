@@ -57,14 +57,15 @@ const InstructorsPage = () => {
   const { currentPage, instructorsPerPage, totalCount } = pagination;
   const totalPages = Math.ceil(totalCount / instructorsPerPage);
 
-  const handleApprovalToggle = async (email: string) => {
+  const handleApprovalToggle = async (email: string, reason: string = "") => {
     if (!email) {
-      console.error("Email not found for the selected student.");
+      console.error("Email not found for the selected instructor.");
       return;
     }
     try {
-      const response = await dispatch(approveReject(email));
-      console.log(response, "Response from blockUnblock handler");
+      console.log(email, reason, "iam hereeeeeeeetoday my love");
+      const response = await dispatch(approveReject({ email, reason }));
+      console.log(response, "Response from approval handler");
       if (response.payload?.success) {
         setData((prevData) =>
           prevData.map((instructor) =>
@@ -74,12 +75,13 @@ const InstructorsPage = () => {
           )
         );
       } else {
-        console.error("Failed to update student status");
+        console.error("Failed to update instructor status");
       }
     } catch (error) {
-      console.error("Error during block/unblock operation:", error);
+      console.error("Error during approval/rejection:", error);
     }
   };
+
   const handleBlockUnblockToggle = async (email: string) => {
     if (!email) {
       console.error("Email not found for the selected student.");
@@ -270,7 +272,7 @@ const InstructorsPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 space-y-2">
                     {/* Approve/Reject Button with Confirmation Modal */}
-                    <ConfirmationModal
+                    {/* <ConfirmationModal
                       triggerText={instructor.isRejected ? "Approve" : "Reject"}
                       title={`${
                         instructor.isRejected ? "Approve" : "Reject"
@@ -284,6 +286,24 @@ const InstructorsPage = () => {
                       }?`}
                       status={instructor.isRejected ? "approve" : "reject"}
                       onConfirm={() => handleApprovalToggle(instructor.email)}
+                    /> */}
+
+                    <ConfirmationModal
+                      triggerText={instructor.isRejected ? "Approve" : "Reject"}
+                      title={`${
+                        instructor.isRejected ? "Approve" : "Reject"
+                      } Instructor`}
+                      description={`Are you sure you want to ${
+                        instructor.isRejected ? "approve" : "reject"
+                      } ${
+                        instructor.firstName ||
+                        instructor.name ||
+                        "this instructor"
+                      }?`}
+                      status={instructor.isRejected ? "approve" : "reject"}
+                      onConfirm={(reason) =>
+                        handleApprovalToggle(instructor.email, reason)
+                      }
                     />
 
                     {/* Block/Unblock Button with Confirmation Modal */}

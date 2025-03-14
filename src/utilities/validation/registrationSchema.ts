@@ -18,56 +18,51 @@ export const registrationSchema = Yup.object().shape({
     .matches(
       /^[a-zA-Z0-9_ ]+$/,
       "Last name can only contain alphanumeric characters, underscores, and spaces"
-    ),    
+    ),
 
-    cv: Yup.mixed()
+  cv: Yup.mixed<File>()
     .required("CV is required")
     .test(
       "fileSize",
       "CV size must be less than or equal to 5MB",
-      (value) => !value || (value && value.size <= 5 * 1024 * 1024)
+      (value) => value instanceof File && value.size <= 5 * 1024 * 1024
     )
     .test(
       "fileType",
       "CV must be a PDF file",
-      (value) => !value || (value && value.type === "application/pdf")
+      (value) => value instanceof File && value.type === "application/pdf"
     ),
 
-    qualification: Yup.string()
-    .required("Qualification is required"),
+  qualification: Yup.string().required("Qualification is required"),
 
-   
+  profession: Yup.string().required("Profession is required"),
 
-
-  profession: Yup.string()
-    .required("Profession is required"),
-  
   profile: Yup.object().shape({
     gender: Yup.string()
-    .oneOf(["male", "female", "other"], "Invalid gender selection")
-    .required("Gender is required"),
+      .oneOf(["male", "female", "other"], "Invalid gender selection")
+      .required("Gender is required"),
 
     dateOfBirth: Yup.date()
       .required("Date of birth is required")
       .max(
         new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
         "You must be at least 18 years old"
-      ),  
-      avatar: Yup.mixed()
+      ),
+
+    avatar: Yup.mixed<File>()
       .required("Profile image is required")
       .test(
         "fileSize",
         "Profile image size must be less than or equal to 2MB",
-        (value) => !value || (value && value.size <= 2 * 1024 * 1024)
+        (value) => value instanceof File && value.size <= 2 * 1024 * 1024
       )
       .test(
         "fileType",
         "Profile image must be in JPG, JPEG, or PNG format",
         (value) =>
-          !value ||
-          (value &&
-            ["image/jpeg", "image/jpg", "image/png"].includes(value.type))
-      ),  
+          value instanceof File &&
+          ["image/jpeg", "image/jpg", "image/png"].includes(value.type)
+      ),
   }),
 
   contact: Yup.object().shape({
@@ -84,14 +79,8 @@ export const registrationSchema = Yup.object().shape({
         .trim()
         .required("Linkedin is mandatory")
         .url("Invalid URL format"),
-      github: Yup.string()
-        .trim()
-        .url("Invalid URL format")
-        .optional(),
-      instagram: Yup.string()
-        .trim()
-        .url("Invalid URL format")
-        .optional(),
+      github: Yup.string().trim().url("Invalid URL format").optional(),
+      instagram: Yup.string().trim().url("Invalid URL format").optional(),
     }),
   }),
 });
