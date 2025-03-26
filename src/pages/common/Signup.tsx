@@ -96,13 +96,11 @@ const handleSignup = async (values: SignupFormData) => {
     try {     
       const result = await dispatch(verifyOtpAction({ data, otp }));  
       
-      console.log (result,"hey iam waiting for u after the otp verification in student....")
-      debugger
+      console.log (result,"hey iam waiting for u after the otp verification in student....")     
       if (result.payload.success) {
         setShowNavbar(true);
-        toast.success("OTP Verified Successfully!");
-        console.log("debugging")
-        debugger
+        toast.success("OTP Verified Successfully!");       
+       
         localStorage.clear()
         // window.location.href="/"
         navigate("/login", {
