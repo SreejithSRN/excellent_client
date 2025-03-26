@@ -44,6 +44,7 @@ export interface Instructor {
     firstName?: string;
     lastName?: string;
     name?: string;
+    _id?: string
   }
   export interface Category {
     name?: string;

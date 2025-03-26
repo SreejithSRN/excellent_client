@@ -6,6 +6,15 @@ import { CourseEntity } from "../../types/ICourse";
 import { getCoursesById } from "../../redux/store/actions/course/getCourseByIdAction";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
+import { loadStripe } from "@stripe/stripe-js";
+import { commonRequest, URL } from "../../common/api";
+import { config } from "../../common/config";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+interface SessionReciever{
+  id:string
+}
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -43,6 +52,48 @@ const CourseDetails = () => {
 
   console.log(course, " tatatatata");
 
+  const handleEnrollment = async (courseId: string | undefined) => {
+    
+
+    if(!data){
+      toast.error("Please Login to proceed")
+      return
+    }else{
+      if(course?.pricing?.type==="free"){
+        const details = {
+          userId: data?._id,
+          courseId: course?._id,
+        }
+        console.log(details,"verification for data in free enrollment")
+        // const freeEnrollment=await commonRequest("POST",`${URL}/api/payment/createEnrollment`,details,config)
+
+      }else{
+        if (!courseId) {
+          console.error("Invalid course ID");
+          return;
+        }
+        console.log(courseId, "I am here in handle Enrollment in paid version");
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+        console.log(course,"iam waiting for course details...")
+        const body = {
+          courseId: course?._id,
+          userId: data?._id,
+          amount: course?.pricing?.amount,
+          thumbnail: course?.thumbnail,
+          courseName: course?.title,
+          instructorRef: course?.instructorRef?._id,
+        };
+        const response=await commonRequest<SessionReciever>("POST",`${URL}/api/payment/create-checkout-session`,body,config);
+        console.log(response,"waiting for the response of the payment in the course details")
+        if(stripe && response?.data.id){
+          stripe.redirectToCheckout({
+            sessionId: response?.data?.id
+          })
+        }
+      }
+    }    
+  };
+
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -65,6 +116,7 @@ const CourseDetails = () => {
           : "max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"
       }
     >
+      <ToastContainer />
       {/* Course Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
         <img
@@ -159,6 +211,18 @@ const CourseDetails = () => {
           </ul>
         ) : (
           <p className="text-gray-500 mt-4">No lessons available.</p>
+        )}
+      </div>
+
+      {/* Buy Button - Centered */}
+      <div className="flex justify-center mt-6">
+        {!course.isBlocked && (!data || data?.role === "student") && (
+          <button
+            onClick={() => handleEnrollment(course._id ?? "")}
+            className="px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Buy this Course
+          </button>
         )}
       </div>
     </div>

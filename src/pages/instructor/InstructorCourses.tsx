@@ -27,7 +27,7 @@ const InstructorCourses = () => {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      setLoading(true);
+      setLoading(true);     
       try {
         let response;
         if (location.pathname === "/instructor/courses") {
@@ -100,6 +100,7 @@ const InstructorCourses = () => {
       console.error("Failed to toggle course block:", error);
     }
   };
+  
 
   return (
     <div className={location.pathname === "/courses" ? "pt-20 px-4" : "px-4"}>
@@ -231,14 +232,7 @@ const InstructorCourses = () => {
                       View
                     </Link>
 
-                    {(!data || data?.role === "student") && (
-                      <Link
-                        to={`/instructor/coursebuy/${course._id}`}
-                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Buy
-                      </Link>
-                    )}
+                   
 
                     {data?.role === "instructor" &&
                       location.pathname === "/instructor/courses" && (
