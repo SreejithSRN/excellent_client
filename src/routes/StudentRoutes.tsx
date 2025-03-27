@@ -37,10 +37,12 @@ import StudentLayout from "../pages/student/StudentLayout";
 import StudentCourses from "../pages/student/StudentCourses";
 import StudentAssessments from "../pages/student/StudentAssessments";
 import StudentsChat from "../pages/student/StudentsChat";
-import StudentsSetting from "../pages/student/StudentsSetting";
+
 import ProfilePage from "../pages/common/ProfilePage";
 import InstructorCourses from "../pages/instructor/InstructorCourses";
 import CourseDetails from "../pages/common/CourseDetails";
+import PaymentHistory from "../pages/student/PaymentHistory";
+
 // import ProfileEditPage from "../pages/common/ProfileEditPage";
 
 function StudentRoutes() {
@@ -54,8 +56,11 @@ function StudentRoutes() {
         <Route path="courses/:id" element={<CourseDetails />} />
         <Route path="assessments" element={<StudentAssessments />} />
         <Route path="chat" element={<StudentsChat />} />
-        <Route path="settings" element={<StudentsSetting />} />
-        
+        <Route path="purchase" element={<PaymentHistory />} />
+
+     
+        {/* <Route path="payment/failure" element={<StudentFailurePage />} />
+        <Route path="payment/success" element={<StudentFailurePage />} /> */}
         {/* Profile Route and Nested Edit Profile Route */}
         <Route path="profile/*" >
           <Route index element={<ProfilePage/>}/>

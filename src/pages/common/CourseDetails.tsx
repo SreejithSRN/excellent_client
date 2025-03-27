@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Clock, PlayCircle, Loader2 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
@@ -19,6 +19,7 @@ interface SessionReciever{
 const CourseDetails = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
+  const navigate=useNavigate()
   const location = useLocation();
   const [course, setCourse] = useState<CourseEntity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,11 +62,14 @@ const CourseDetails = () => {
     }else{
       if(course?.pricing?.type==="free"){
         const details = {
-          userId: data?._id,
+          studentId: data?._id,
           courseId: course?._id,
         }
         console.log(details,"verification for data in free enrollment")
-        // const freeEnrollment=await commonRequest("POST",`${URL}/api/payment/createEnrollment`,details,config)
+        const freeEnrollment=await commonRequest("POST",`${URL}/api/course/createEnrollment`,details,config)
+        if(freeEnrollment.success){          
+          navigate("/student/mycourses", { state: { message: freeEnrollment.message },replace:true });
+        }
 
       }else{
         if (!courseId) {

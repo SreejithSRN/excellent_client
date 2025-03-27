@@ -13,6 +13,7 @@ import {
   MessageCircle,
   Users,
   UserCheck,
+  FileText,
 } from "lucide-react";
 import ConfirmationModal from "./ConfirmationModal";
 import { RootState } from "../../redux";
@@ -42,7 +43,7 @@ const Sidebar: React.FC = () => {
     { icon: BookOpen, label: "My Courses", path: "/student/mycourses" },
     { icon: ClipboardList, label: "Assessments", path: "/student/assessments" },
     { icon: MessageCircle, label: "Chat Support", path: "/student/chat" },
-    { icon: Settings, label: "Settings", path: "/student/settings" },
+    { icon: Settings, label: "Purchase History", path: "/student/purchase" },
     { icon: UserCircle, label: "Profile", path: "/student/profile" },
   ];
 
@@ -69,7 +70,7 @@ const Sidebar: React.FC = () => {
       path: "/instructor/messages",
     },
     { icon: UserCircle, label: "Profile", path: "/instructor/profile" },
-    // { icon: Settings, label: 'Settings', path: '/instructor/settings' },
+    { icon: FileText, label: 'Payment History', path: '/instructor/payment' },
   ];
 
   // Conditionally set menu items based on role

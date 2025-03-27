@@ -9,6 +9,7 @@ import ProfilePage from '../pages/common/ProfilePage';
 import CreateCourse from '../pages/instructor/Course/CreateCourse';
 import CourseDetails from '../pages/common/CourseDetails';
 import CourseForm from '../pages/instructor/Course/CourseForm';
+import PaymentHistory from '../pages/student/PaymentHistory';
 // import ProfileEditPage from '../pages/common/ProfileEditPage';
 
 export default function InstructorRoutes() {
@@ -21,6 +22,7 @@ export default function InstructorRoutes() {
             <Route path="allcourses" element={<InstructorCourses />} />
             <Route path="assessments" element={< InstructorAssessments/>} />
             <Route path="messages" element={<InstructorChat />} />
+            <Route path="payment" element={<PaymentHistory />} />
             <Route path="create-course" element={<CreateCourse />} />
             <Route path="courses/:id" element={<CourseDetails />} />
             <Route path="courseform/:id" element={<CourseForm />} /> 

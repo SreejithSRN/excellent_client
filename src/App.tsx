@@ -20,13 +20,15 @@ import { RootState } from "./redux";
 import StudentRoutes from "./routes/StudentRoutes";
 import AdminRoutes from "./routes/AdminRoutes";
 import InstructorRoutes from "./routes/InstructorRoutes";
-import Courses from "./pages/common/Courses";
 import { useAppDispatch } from "./hooks/accessHook";
 import { getUserDataAction, logoutAction } from "./redux/store/actions/auth";
 import RegistrationForm from "./pages/admin/RegistrationForm";
 import ForgotPassword from "./pages/common/ForgotPassword";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CourseDetails from "./pages/common/CourseDetails";
+import StudentSuccessPage from "./pages/student/StudentSuccessPage";
+import StudentFailurePage from "./pages/student/StudentFailurePage";
+
 
 
 function App() {
@@ -63,12 +65,16 @@ function AppContent() {
     }
   }, [dispatch, data]);
 
+  const isPaymentRoute = ["/payment/success", "/payment/failure"].some((path) =>
+    location.pathname.includes(path)
+  );
+
 
   const isProtectedRoute = ["/student", "/admin", "/instructor"].some((path) =>
     location.pathname.includes(path)
   );
 
-  const shouldShowNavbar = isAuthenticated && !isProtectedRoute;
+  const shouldShowNavbar = isAuthenticated && !isProtectedRoute && !isPaymentRoute;
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -90,6 +96,8 @@ function AppContent() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/payment/success" element={<StudentSuccessPage/>} />
+          <Route path="/payment/failure" element={<StudentFailurePage/>} />
           <Route
             path="/signup"
             element={<Signup setShowNavbar={setShowNavbar} />}
