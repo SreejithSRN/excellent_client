@@ -64,6 +64,8 @@ const RegistrationForm = () => {
 
       const response = await dispatch(registerForm(value1));
       if (response.payload.success) {
+
+
         navigate("/", {
           state: {
             message:

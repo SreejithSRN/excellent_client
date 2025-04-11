@@ -10,6 +10,9 @@ export interface CourseEntity{
     lessons?:Lesson[];
     isBlocked?:boolean;
     thumbnail?:string
+    isPassed?:boolean
+    mark?:number
+    isTestCompleted?:boolean
 
 }
 
@@ -34,6 +37,7 @@ export enum PricingType {
 
 export interface Lesson { 
     _id?:string;  
+    lessonNumber?: string,
     title?: string;
     description?: string; 
     video?: File|string;

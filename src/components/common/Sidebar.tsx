@@ -43,7 +43,7 @@ const Sidebar: React.FC = () => {
     { icon: BookOpen, label: "My Courses", path: "/student/mycourses" },
     { icon: ClipboardList, label: "Assessments", path: "/student/assessments" },
     { icon: MessageCircle, label: "Chat Support", path: "/student/chat" },
-    { icon: Settings, label: "Purchase History", path: "/student/purchase" },
+    { icon: Settings, label: "Payment History", path: "/student/purchase" },
     { icon: UserCircle, label: "Profile", path: "/student/profile" },
   ];
 

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  matchPath,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { Clock, PlayCircle, Loader2 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
@@ -11,20 +16,39 @@ import { commonRequest, URL } from "../../common/api";
 import { config } from "../../common/config";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AssessmentModal } from "../instructor/Assessments/AssessmentModal";
 
-interface SessionReciever{
-  id:string
+interface SessionReciever {
+  id: string;
 }
 
 const CourseDetails = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const location = useLocation();
   const [course, setCourse] = useState<CourseEntity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { data } = useSelector((state: RootState) => state.user);
+
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+
+
+
+
+  const isCourseDetailPage = matchPath(
+    "/student/mycourses/:id",
+    location.pathname
+  );
+
+  const isInstructorCoursePage = matchPath(
+    "/instructor/courses/:id",
+    location.pathname
+  );
+  
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -54,31 +78,57 @@ const CourseDetails = () => {
   console.log(course, " tatatatata");
 
   const handleEnrollment = async (courseId: string | undefined) => {
-    
+    if (!data) {
+      toast.error("Please Login to proceed");
+      return;
+    }
 
-    if(!data){
-      toast.error("Please Login to proceed")
-      return
-    }else{
-      if(course?.pricing?.type==="free"){
+    try {
+      // Step 1: Check if the user is already enrolled
+      const enrollmentCheck = await commonRequest<{ enrolled: boolean }>(
+        "GET",
+        `/api/course/checkEnrollment?studentId=${data._id}&courseId=${course?._id}`,
+        config
+      );
+      console.log(enrollmentCheck);
+
+      if (enrollmentCheck.data) {
+        toast.info("You have already purchased this course.");
+        return;
+      }
+
+      // Step 2: Process free or paid enrollment
+      if (course?.pricing?.type === "free") {
         const details = {
           studentId: data?._id,
           courseId: course?._id,
-        }
-        console.log(details,"verification for data in free enrollment")
-        const freeEnrollment=await commonRequest("POST",`${URL}/api/course/createEnrollment`,details,config)
-        if(freeEnrollment.success){          
-          navigate("/student/mycourses", { state: { message: freeEnrollment.message },replace:true });
-        }
+        };
+        console.log(details, "Verification for data in free enrollment");
+        const freeEnrollment = await commonRequest(
+          "POST",
+          `${URL}/api/course/createEnrollment`,
+          details,
+          config
+        );
 
-      }else{
+        if (freeEnrollment.success) {
+          navigate("/student/mycourses", {
+            state: { message: freeEnrollment.message },
+            replace: true,
+          });
+        }
+      } else {
         if (!courseId) {
           console.error("Invalid course ID");
           return;
         }
-        console.log(courseId, "I am here in handle Enrollment in paid version");
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
-        console.log(course,"iam waiting for course details...")
+        console.log(courseId, "Handling paid enrollment");
+
+        const stripe = await loadStripe(
+          import.meta.env.VITE_STRIPE_PUBLIC_KEY!
+        );
+        console.log(course, "Waiting for course details...");
+
         const body = {
           courseId: course?._id,
           userId: data?._id,
@@ -87,14 +137,24 @@ const CourseDetails = () => {
           courseName: course?.title,
           instructorRef: course?.instructorRef?._id,
         };
-        const response=await commonRequest<SessionReciever>("POST",`${URL}/api/payment/create-checkout-session`,body,config);
-        console.log(response,"waiting for the response of the payment in the course details")
-        if(stripe && response?.data.id){
+
+        const response = await commonRequest<SessionReciever>(
+          "POST",
+          `${URL}/api/payment/create-checkout-session`,
+          body,
+          config
+        );
+
+        console.log(response, "Waiting for the response of the payment");
+
+        if (stripe && response?.data.id) {
           stripe.redirectToCheckout({
-            sessionId: response?.data?.id
-          })
+            sessionId: response?.data?.id,
+          });
         }
       }
+    } catch (error) {
+      console.error("Error handling enrollment:", error);
     }    
   };
 
@@ -120,6 +180,9 @@ const CourseDetails = () => {
           : "max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"
       }
     >
+
+
+      
       <ToastContainer />
       {/* Course Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
@@ -183,8 +246,10 @@ const CourseDetails = () => {
         <h2 className="text-2xl font-semibold text-gray-900">Course Lessons</h2>
         {course.lessons && course.lessons.length > 0 ? (
           <ul className="mt-4 space-y-4">
-            {(data?.role === "student" || !data
-              ? course.lessons.slice(0, 1)
+            {(isCourseDetailPage
+              ? course.lessons 
+              : data?.role === "student" || !data
+              ? course.lessons.slice(0, 1) 
               : course.lessons
             ).map((lesson) => (
               <li
@@ -218,19 +283,64 @@ const CourseDetails = () => {
         )}
       </div>
 
-      {/* Buy Button - Centered */}
-      <div className="flex justify-center mt-6">
-        {!course.isBlocked && (!data || data?.role === "student") && (
-          <button
-            onClick={() => handleEnrollment(course._id ?? "")}
-            className="px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-          >
-            Buy this Course
-          </button>
-        )}
-      </div>
+      {!isCourseDetailPage && (
+        <div className="flex justify-center mt-6">
+          {!course.isBlocked && (!data || data?.role === "student") && (
+            <button
+              onClick={() => handleEnrollment(course._id ?? "")}
+              className="px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Buy this Course
+            </button>
+          )}
+        </div>
+      )}
+
+      {data?.role === "instructor" &&
+  isInstructorCoursePage &&
+  course.instructorRef &&
+  data._id === course.instructorRef._id && (
+    <div className="mt-8 border-t pt-6">
+      <h2 className="text-xl font-semibold mb-2">Instructor Tools</h2>
+      <button
+        onClick={() => {
+          setSelectedCourseId(course._id ?? null);
+          setIsModalOpen(true);
+        }}
+        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+      >
+        Create Assessment
+      </button>
+    </div>
+)}
+
+
+{isModalOpen && selectedCourseId && (
+  <AssessmentModal
+    courseId={selectedCourseId}
+    onClose={() => setIsModalOpen(false)}
+  />
+)}
+
+
+
     </div>
   );
 };
 
+
+
 export default CourseDetails;
+
+
+
+
+
+
+
+
+
+
+
+
+

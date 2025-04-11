@@ -4,6 +4,7 @@ import { Minus, Video } from "lucide-react";
 interface LessonInputProps {
   index: number;
   values: {
+    lessonNumber:number
     title: string;
     description: string;
     video: File | null|string;
@@ -27,10 +28,11 @@ const LessonInput: React.FC<LessonInputProps> = ({
 
    // ✅ Set preview if video exists (useful for editing)
    useEffect(() => {
+    setFieldValue(`lessons[${index}].lessonNumber`, index + 1);
     if (values.video && typeof values.video === "string") {
       setVideoPreview(values.video); // Show existing video on edit
     }
-  }, [values.video]);
+  }, [index, values.video, setFieldValue]);
 
   // Convert seconds to HH:MM:SS format
   const formatDuration = (seconds: number) => {

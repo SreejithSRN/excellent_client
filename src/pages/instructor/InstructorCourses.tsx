@@ -11,6 +11,7 @@ import ConfirmationModal from "../../components/admin/ConfirmationModal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getCoursesForInstructor } from "../../redux/store/actions/course/getCoursesForInstructorAction";
+import { getStudentMyCourses } from "../../redux/store/actions/course/getStudentMyCourses";
 
 const InstructorCourses = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,12 +28,20 @@ const InstructorCourses = () => {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      setLoading(true);     
+      setLoading(true);
       try {
         let response;
         if (location.pathname === "/instructor/courses") {
           response = await dispatch(
             getCoursesForInstructor({
+              page: pagination.currentPage,
+              limit: pagination.categoryPerPage,
+              id: data?._id || "",
+            })
+          );
+        } else if (location.pathname === "/student/mycourses") {
+          response = await dispatch(
+            getStudentMyCourses({
               page: pagination.currentPage,
               limit: pagination.categoryPerPage,
               id: data?._id || "",
@@ -70,6 +79,12 @@ const InstructorCourses = () => {
     location.pathname,
   ]);
 
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+    }
+  }, [location.state]);
+
   const totalPages = Math.ceil(
     pagination.totalCount / pagination.categoryPerPage
   );
@@ -100,13 +115,12 @@ const InstructorCourses = () => {
       console.error("Failed to toggle course block:", error);
     }
   };
-  
 
   return (
     <div className={location.pathname === "/courses" ? "pt-20 px-4" : "px-4"}>
+      <ToastContainer />
       {data?.role === "instructor" && (
         <div className="flex justify-between items-center mb-6">
-          <ToastContainer />
           <h1 className="text-2xl font-bold">My Courses</h1>
           <Link
             to="/instructor/create-course"
@@ -135,7 +149,7 @@ const InstructorCourses = () => {
       {/* Loading / Empty State */}
       {loading ? (
         <div className="text-center py-6">Loading...</div>
-      ) : courses.length === 0 ? (
+      ) : courses.length === 0 && location.pathname === "/courses" ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No courses yet
@@ -150,6 +164,12 @@ const InstructorCourses = () => {
             <Plus className="h-5 w-5 mr-2" />
             Create Course
           </Link>
+        </div>
+      ) : courses.length === 0 && location.pathname === "/student/mycourses" ? (
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No courses purchased yet
+          </h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -217,22 +237,43 @@ const InstructorCourses = () => {
                         >
                           Edit
                         </Link>
+                        
                       )}
+                 
 
-                    <Link
-                      to={
-                        data?.role === "instructor"
-                          ? `/instructor/courses/${course._id}`
-                          : data?.role === "student"
-                          ? `/student/courses/${course._id}`
-                          : `/detailcourses/${course._id}`
-                      }
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      View
-                    </Link>
+                    {location.pathname === "/student/mycourses" ? (
+                      <Link
+                        to={`/student/mycourses/${course._id}`}
+                        state={{ isPassed: course.isTestCompleted }}
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        View
+                      </Link>
+                    ) : (
+                      <Link
+                        to={
+                          // data?.role === "instructor"
+                          //   ? `/instructor/courses/${course._id}`
+                          //   : data?.role === "student"
+                          //   ? `/student/courses/${course._id}`
+                          //   : `/detailcourses/${course._id}`
 
-                   
+                          data?.role === "instructor"
+                            ? `/instructor/courses/${course._id}`
+                            : data?.role === "student" &&
+                              location.pathname === "/student/mycourses"
+                            ? `/student/myCourses/${course._id}`
+                            : data?.role === "student"
+                            ? `/student/courses/${course._id}`
+                            : `/detailcourses/${course._id}`
+                        }
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        View
+                      </Link>
+                      
+                    )}
+                        
 
                     {data?.role === "instructor" &&
                       location.pathname === "/instructor/courses" && (
@@ -250,6 +291,7 @@ const InstructorCourses = () => {
                           }
                         />
                       )}
+                      
                   </div>
                 </div>
               </div>
@@ -282,3 +324,4 @@ const InstructorCourses = () => {
 };
 
 export default InstructorCourses;
+

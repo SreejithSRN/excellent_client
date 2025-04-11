@@ -63,7 +63,7 @@ const InstructorsPage = () => {
       return;
     }
     try {
-      console.log(email, reason, "iam hereeeeeeeetoday my love");
+      
       const response = await dispatch(approveReject({ email, reason }));
       console.log(response, "Response from approval handler");
       if (response.payload?.success) {
