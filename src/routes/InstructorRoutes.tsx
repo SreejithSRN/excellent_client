@@ -10,6 +10,7 @@ import CreateCourse from '../pages/instructor/Course/CreateCourse';
 import CourseDetails from '../pages/common/CourseDetails';
 import CourseForm from '../pages/instructor/Course/CourseForm';
 import PaymentHistory from '../pages/student/PaymentHistory';
+import StudentAssesmentPage from '../pages/instructor/Assessments/StudentAssesmentPage';
 // import ProfileEditPage from '../pages/common/ProfileEditPage';
 
 export default function InstructorRoutes() {
@@ -26,6 +27,7 @@ export default function InstructorRoutes() {
             <Route path="create-course" element={<CreateCourse />} />
             <Route path="courses/:id" element={<CourseDetails />} />
             <Route path="courseform/:id" element={<CourseForm />} /> 
+            <Route path="student-assessment" element={<StudentAssesmentPage/>} /> 
             <Route path="profile/*" >
           <Route index element={<ProfilePage/>}/>
           {/* <Route path="edit" element={<ProfileEditPage/>} />*/}

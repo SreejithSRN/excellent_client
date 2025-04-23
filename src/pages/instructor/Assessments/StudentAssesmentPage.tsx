@@ -1,22 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
-import { commonRequest } from "../../common/api";
-import { config } from "../../common/config";
+
 import { Dialog } from "@headlessui/react";
 import { Fragment } from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { commonRequest } from "../../../common/api";
+import { config } from "../../../common/config";
 
 type Assessment = {
-  courseTitle: string;
-  instructorName: string;
-  lessonsCount: number;
-  status: boolean;
-  mark: number[] | null;
+  courseTitle?: string;
+  instructorName?: string;
+  lessonsCount?: number;
+  status?: boolean;
+  mark?: number[] | null;
   studentName?: string;
+  studentEmail?:string
 };
 
-const StudentAssessments = () => {
+const StudentAssesmentPage= () => {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssessment, setSelectedAssessment] =
@@ -65,7 +67,7 @@ const StudentAssessments = () => {
       try {
         const res = await commonRequest(
           "GET",
-          "/api/course/studentAssessmentsList",
+          "/api/course/instructorAssessmentsList",
           null,
           config
         );
@@ -101,8 +103,8 @@ const StudentAssessments = () => {
           <thead>
             <tr className="bg-gray-100 text-left text-sm font-semibold">
               <th className="px-4 py-3">Course Title</th>
-              <th className="px-4 py-3">Instructor</th>
-              <th className="px-4 py-3">Lessons</th>
+              <th className="px-4 py-3">Student Name</th>
+              <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Attempts</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Mark</th>
@@ -113,9 +115,9 @@ const StudentAssessments = () => {
             {currentItems.map((item, i) => (
               <tr key={i} className="border-t hover:bg-gray-50 text-sm">
                 <td className="px-4 py-3">{item.courseTitle}</td>
-                <td className="px-4 py-3">{item.instructorName}</td>
-                <td className="px-4 py-3">{item.lessonsCount}</td>
-                <td className="px-4 py-3">{item.mark?.length}</td>
+                <td className="px-4 py-3">{item.studentName}</td>
+                <td className="px-4 py-3">{item.studentEmail}</td>
+                <td className="px-4 py-3">{item.mark?.length}</td>                
                 <td className="px-4 py-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -128,12 +130,11 @@ const StudentAssessments = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {item.status &&
-                  Array.isArray(item.mark) &&
-                  item.mark.length > 0
-                    ? item.mark[item.mark.length - 1]
-                    : "Not Applicable"}
-                </td>
+  {Array.isArray(item.mark) && item.mark.length > 0
+    ? item.mark[item.mark.length - 1]
+    : "Not Applicable"}
+</td>
+
 
                 <td className="px-4 py-3">
                   {item.status ? (
@@ -252,4 +253,5 @@ const StudentAssessments = () => {
   );
 };
 
-export default StudentAssessments;
+export default StudentAssesmentPage
+

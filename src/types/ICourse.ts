@@ -54,4 +54,15 @@ export interface Instructor {
     name?: string;
   }
   
+
+  export interface CourseFilterEntity {
+    level?:string
+    search?: string;
+    category?: string;
+    pricing?: string
+    minPrice?: number;
+    maxPrice?: number;
+    sort?: string
+  }
+  
   

@@ -2,11 +2,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { config } from "../../../../common/config";
 import { CLIENT_API } from "../../../../utilities/axios/instance";
+import { CourseFilterEntity } from "../../../../types/ICourse";
 
 export const getStudentMyCourses = createAsyncThunk(
   "course/getCoursesForInstructor",
   async (
-    { page, limit,id }: { page: number; limit: number,id:string },
+    { page, limit,id,filters }: { page: number; limit: number,id:string,filters:CourseFilterEntity},
     { rejectWithValue }
   ) => {
     try {
@@ -14,7 +15,8 @@ export const getStudentMyCourses = createAsyncThunk(
         params: {
           page,
           limit,
-          id
+          id,
+          filters
         },
         ...config,
       });
