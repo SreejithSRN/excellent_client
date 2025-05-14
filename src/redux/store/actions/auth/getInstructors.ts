@@ -6,12 +6,13 @@ import { config } from "../../../../common/config";
 
 export const getInstructors = createAsyncThunk(
   "auth/getInstructors", 
-  async ({ page, limit }: { page: number; limit: number }, { rejectWithValue }) => {
+  async ({ page, limit,search}: { page: number; limit: number,search:string }, { rejectWithValue }) => {
     try {      
       const response = await CLIENT_API.get("/api/auth/getInstructors", {
         params: {
           page,
           limit,
+          search
         },        
         ...config, 
       });

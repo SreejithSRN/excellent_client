@@ -1,5 +1,3 @@
-/// ............................ DONOT DELETE 19 FEB 2025 .........................................////
-
 import { useRef, useState } from "react";
 import { Formik, Form, FormikProps } from "formik";
 import BasicCourseInfo from "./BasicCouseInfo";
@@ -41,15 +39,13 @@ const CourseForm = () => {
         pricingType: true,
         price: true,
         thumbnail: true,
-        lessons: formikRef.current.values.lessons.map((lesson:any) => ({
+        lessons: formikRef.current.values.lessons.map((lesson: any) => ({
           title: true,
           description: true,
           video: lesson.video instanceof File,
           duration: true,
         })),
       });
-
-
 
       if (Object.keys(errors).length > 0) {
         toast.error(
@@ -117,7 +113,6 @@ const CourseForm = () => {
             return lesson;
           })
         );
-        
 
         console.log("All videos uploaded:", uploadedLessons);
         toast.success("All videos uploaded successfully!");
@@ -168,7 +163,7 @@ const CourseForm = () => {
       //   lessons: [],
       // }}
       initialValues={{
-        id:course?._id,
+        id: course?._id,
         title: course?.title || "",
         description: course?.description || "",
         category: course?.categoryRef || "",
@@ -217,8 +212,15 @@ const CourseForm = () => {
             />
 
             <div className="flex justify-end space-x-4">
+              {/* <button
+                type="button"
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button> */}
               <button
                 type="button"
+                onClick={() => navigate("/instructor/courses")} // 👈 Navigates back
                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 Cancel
@@ -239,7 +241,7 @@ const CourseForm = () => {
                   </>
                 ) : course ? (
                   "Edit Course"
-                ): (
+                ) : (
                   "Publish Course"
                 )}
               </button>

@@ -6,7 +6,7 @@ import { config } from "../../../../common/config";
 export const getStudents = createAsyncThunk(
   "auth/getStudents",
   async (
-    { page, limit }: { page: number; limit: number },
+    { page, limit,search }: { page: number; limit: number;search:string },
     { rejectWithValue }
   ) => {
     try {
@@ -14,6 +14,7 @@ export const getStudents = createAsyncThunk(
         params: {
           page,
           limit,
+          search
         },
         ...config,
       });

@@ -4,7 +4,7 @@ import { Minus, Video } from "lucide-react";
 interface LessonInputProps {
   index: number;
   values: {
-    lessonNumber:number
+    lessonNumber?:number
     title: string;
     description: string;
     video: File | null|string;

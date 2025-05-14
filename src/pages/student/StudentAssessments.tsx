@@ -17,6 +17,8 @@ type Assessment = {
 };
 
 const StudentAssessments = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssessment, setSelectedAssessment] =
@@ -61,29 +63,47 @@ const StudentAssessments = () => {
   };
 
   useEffect(() => {
-    const fetchAssessments = async () => {
-      try {
-        const res = await commonRequest(
-          "GET",
-          "/api/course/studentAssessmentsList",
-          null,
-          config
-        );
-        if (res.success && Array.isArray(res.data)) {
-          setAssessments(res.data as Assessment[]);
-        } else {
-          toast.error("Failed to fetch assessment data.");
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Error loading assessments.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const delayDebounce = setTimeout(() => {
+      const fetchAssessments = async () => {
+        try {
+          setLoading(true);
+          const res = await commonRequest(
+            "GET",
+            `/api/course/studentAssessmentsList?search=${searchTerm}`,
+            null,
+            config
+          );
 
-    fetchAssessments();
-  }, []);
+          if (res.success && Array.isArray(res.data)) {
+            setAssessments(res.data as Assessment[]);
+          } else {
+            toast.error("Failed to fetch assessment data.");
+          }
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            // Now that we know it's an instance of Error, we can safely access 'name'
+            if (err.name !== "AbortError") {
+              console.error(err);
+              toast.error("Error loading assessments.");
+            }
+          } else {
+            // Handle the case where `err` is not an instance of Error
+            console.error("An unknown error occurred:", err);
+            toast.error("An unknown error occurred.");
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAssessments();
+    }, 500); // debounce delay
+
+    return () => {
+      clearTimeout(delayDebounce);
+    };
+  }, [searchTerm]);
+  
 
   if (loading) {
     return (
@@ -96,6 +116,16 @@ const StudentAssessments = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">My Assessments</h2>
+      <div className="flex justify-end mb-4">
+  <input
+    type="text"
+    placeholder="Search by course title or instructor"
+    className="border border-gray-300 rounded-l px-3 py-1 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  
+</div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow border rounded-lg">
           <thead>
@@ -253,3 +283,4 @@ const StudentAssessments = () => {
 };
 
 export default StudentAssessments;
+

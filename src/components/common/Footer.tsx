@@ -2,7 +2,7 @@ import logo from "../../assets/EXCELLENT LOGO.png";
 
 function Footer() {
   return (
-    <footer className="bg-white text-black border-t-4 border-gray-200 dark:bg-black dark:text-white dark:border-gray-700 py-1">
+    <footer className="bg-white text-black border-t-4 border-gray-200 dark:bg-black dark:text-white dark:border-gray-700 py-1 ">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center md:px-20 md:py-2">
         <div className="flex flex-col items-center md:items-start mb-2 md:mb-0 md:w-1/3">
           <img src={logo} alt="EduStream Logo" className="h-24" />

@@ -252,6 +252,7 @@ const InstructorAssessments = () => {
             setEditingQuestions(undefined);
             fetchInstructorCourses();
           }}
+          onAssessmentCreated={fetchInstructorCourses}
         />
       )}
     </div>

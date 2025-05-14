@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { Clock, PlayCircle, Loader2, X } from "lucide-react";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
@@ -13,18 +13,17 @@ import { TakeAssessmentModal } from "../instructor/Assessments/TakeAssessmentMod
 
 const MyCourseDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); // ✅ Added
   const dispatch = useAppDispatch();
   const location = useLocation();
   const [course, setCourse] = useState<CourseEntity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
-
   const [showTestModal, setShowTestModal] = useState(false);
 
   const { data } = useSelector((state: RootState) => state.user);
-
-  const AssessmentFlag = location.state?.isPassed; 
+  const AssessmentFlag = location.state?.isPassed;
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -75,9 +74,7 @@ const MyCourseDetails = () => {
           : "max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"
       }
     >
-      <div>
-        <h1>Testing Mode please be patient</h1>
-      </div>
+      
       <ToastContainer />
 
       {/* Course Header */}
@@ -132,7 +129,7 @@ const MyCourseDetails = () => {
             </span>
           </p>
         </div>
-      </div>      
+      </div>
 
       {/* Assessment Test Button */}
       <div className="mt-8 text-center">
@@ -179,7 +176,9 @@ const MyCourseDetails = () => {
                   <span className="text-sm">Duration : {lesson.duration}</span>
                 </div>
                 <button
-                  onClick={() => handleWatchLesson(Number(lesson.lessonNumber))}
+                  onClick={() =>
+                    handleWatchLesson(Number(lesson.lessonNumber))
+                  }
                   className="mt-3 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   <PlayCircle className="h-5 w-5 mr-2" />
@@ -191,6 +190,16 @@ const MyCourseDetails = () => {
         ) : (
           <p className="text-gray-500 mt-4">No lessons available.</p>
         )}
+
+        {/* ✅ Review Button */}
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => navigate(`/student/review-course/${course._id}`)}
+            className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+          >
+            Review / Rate Course
+          </button>
+        </div>
       </div>
 
       {/* Video Player */}
@@ -210,7 +219,7 @@ const MyCourseDetails = () => {
             width="100%"
             className="rounded-lg shadow-md mt-4"
             src={`${URL}/api/course/streamVideo/${course._id}/${selectedLesson}`}
-              crossOrigin="use-credentials"
+            crossOrigin="use-credentials"
           />
         </div>
       )}

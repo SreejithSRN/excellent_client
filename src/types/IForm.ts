@@ -37,7 +37,7 @@ export enum Qualification {
 }
 
 // Interfaces
-interface Social {
+export interface Social {
   linkedin: string;
   github?: string;
   instagram?: string;

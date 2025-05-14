@@ -40,10 +40,14 @@ export const commonRequest = async <T, B = unknown>(
         return await appInstance(requestConfig);
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
-            console.error("Error response:", error.response?.data || error.message);
+            // Check if the error response has a message from the backend
+            const errorMessage = error.response?.data?.message || "Something went wrong";
+            console.error("Error response:", errorMessage);
+            // You could also show this error in your UI directly here
+            throw new Error(errorMessage);  // Throw a new error with the backend message
         } else {
             console.error("Unexpected error:", error);
+            throw new Error("An unexpected error occurred.");
         }
-        throw error;
     }
 };

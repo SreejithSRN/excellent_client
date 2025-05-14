@@ -1,11 +1,11 @@
 
 import { Play, Users, BookOpen, Trophy } from 'lucide-react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { RootState } from '../../redux';
+// import { RootState } from '../../redux';
 
 const Landing = () => {
-  const data = useSelector((state: RootState) => state.user);
+  // const data = useSelector((state: RootState) => state.user);
   const location = useLocation();
   const message = location.state?.message || "";  
   return (

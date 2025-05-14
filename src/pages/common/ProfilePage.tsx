@@ -29,7 +29,10 @@ import ImageUpload from "../../utilities/axios/cloudinary";
 import { profileImageEdit } from "../../redux/store/actions/auth/profileImageAction";
 import ChangePasswordModal, { ChangepasswordData } from "./ChangePasswordModal";
 import { passwordChange } from "../../redux/store/actions/auth/passwordChange";
-import { messages } from "../../common/Messages";
+import { messages } from "../../common/messages";
+import { SignupFormData } from "../../types";
+// import { messages } from "../../common/Messages";
+
 
 function ProfileField({
   icon: Icon,
@@ -110,7 +113,7 @@ const ProfilePage: React.FC = () => {
     profession: data?.profession || "not working",
     qualification: data?.qualification || "Not Updated",
     cv: data?.cv || "Not Updated",
-  };
+  } as SignupFormData;
   console.log(
     initialProfileData.profile.avatar,
     "testing ......................."
@@ -121,7 +124,7 @@ const ProfilePage: React.FC = () => {
   const message = location.state?.message || "";
   const [profileImage, setProfileImage] = useState(
     data?.profile?.avatar ||
-      "https://www.pngkey.com/png/detail/72-729716_user-avatar-png-graphic-free-download-icon.png"
+      messages.avatar1
   );
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(initialProfileData);
@@ -267,6 +270,10 @@ const ProfilePage: React.FC = () => {
     }
     console.log(response, "from profile edit page");
   };
+  function getSocialValue(data: any,key: string): string {
+     return data?.contact?.social?.[key] ?? "";
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -354,7 +361,7 @@ const ProfilePage: React.FC = () => {
           <ProfileField
             icon={User}
             label="Gender"
-            value={tempProfileData?.profile?.gender}
+            value={tempProfileData?.profile?.gender!}
             onChange={handleFieldChange("profile.gender")}
             editable={isEditing}
           />
@@ -374,7 +381,7 @@ const ProfilePage: React.FC = () => {
           <ProfileField
             icon={Phone}
             label="Phone"
-            value={tempProfileData.contact?.phone}
+            value={tempProfileData.contact?.phone!}
             onChange={handleFieldChange("contact.phone")}
             editable={isEditing}
           />
@@ -382,7 +389,7 @@ const ProfilePage: React.FC = () => {
           <ProfileField
             icon={MapPin}
             label="Address"
-            value={tempProfileData.contact?.address}
+            value={tempProfileData.contact?.address!}
             onChange={handleFieldChange("contact.address")}
             editable={isEditing}
           />
@@ -396,7 +403,8 @@ const ProfilePage: React.FC = () => {
                 key={key}
                 icon={icon}
                 label={label}
-                value={tempProfileData?.contact?.social?.[key] || ""}
+                value={getSocialValue(tempProfileData, key)}
+
                 onChange={(value) =>
                   handleFieldChange(`contact.social.${key}`)(value)
                 }

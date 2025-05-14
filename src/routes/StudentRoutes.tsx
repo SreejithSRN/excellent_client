@@ -41,6 +41,8 @@ import InstructorCourses from "../pages/instructor/InstructorCourses";
 import CourseDetails from "../pages/common/CourseDetails";
 import PaymentHistory from "../pages/student/PaymentHistory";
 import MyCourseDetails from "../pages/common/MyCourseDetails";
+import StudentReviewSection from "../pages/student/StudentReviewSection";
+import ReviewSection from "../pages/common/ReviewSection";
 
 
 function StudentRoutes() {
@@ -56,6 +58,8 @@ function StudentRoutes() {
         <Route path="assessments" element={<StudentAssessments />} />
         <Route path="chat" element={<StudentsChat />} />
         <Route path="purchase" element={<PaymentHistory />} />
+        <Route path="review-course/:id" element={<StudentReviewSection/>} />
+        <Route path="reviews/:id" element={<ReviewSection/>} />
 
      
         {/* <Route path="payment/failure" element={<StudentFailurePage />} />

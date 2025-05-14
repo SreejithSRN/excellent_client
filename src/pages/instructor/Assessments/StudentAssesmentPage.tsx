@@ -15,10 +15,16 @@ type Assessment = {
   status?: boolean;
   mark?: number[] | null;
   studentName?: string;
-  studentEmail?:string
+  studentEmail?: string;
 };
 
-const StudentAssesmentPage= () => {
+const StudentAssesmentPage = () => {
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+
+
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssessment, setSelectedAssessment] =
@@ -67,7 +73,7 @@ const StudentAssesmentPage= () => {
       try {
         const res = await commonRequest(
           "GET",
-          "/api/course/instructorAssessmentsList",
+          `/api/course/instructorAssessmentsList?search=${searchTerm}`,
           null,
           config
         );
@@ -83,9 +89,10 @@ const StudentAssesmentPage= () => {
         setLoading(false);
       }
     };
-
+  
     fetchAssessments();
-  }, []);
+  }, [searchTerm]);
+  
 
   if (loading) {
     return (
@@ -97,7 +104,18 @@ const StudentAssesmentPage= () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">My Assessments</h2>
+     <div className="flex justify-end mb-4">
+  <input
+    type="text"
+    placeholder="Search by course title or student name..."
+    className="w-80 border px-4 py-2 rounded shadow text-sm focus:outline-none"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
+
+      <h2 className="text-2xl font-bold mb-4">Students Assessments</h2>
+      
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow border rounded-lg">
           <thead>
@@ -117,7 +135,7 @@ const StudentAssesmentPage= () => {
                 <td className="px-4 py-3">{item.courseTitle}</td>
                 <td className="px-4 py-3">{item.studentName}</td>
                 <td className="px-4 py-3">{item.studentEmail}</td>
-                <td className="px-4 py-3">{item.mark?.length}</td>                
+                <td className="px-4 py-3">{item.mark?.length}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -130,11 +148,10 @@ const StudentAssesmentPage= () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-  {Array.isArray(item.mark) && item.mark.length > 0
-    ? item.mark[item.mark.length - 1]
-    : "Not Applicable"}
-</td>
-
+                  {Array.isArray(item.mark) && item.mark.length > 0
+                    ? item.mark[item.mark.length - 1]
+                    : "Not Applicable"}
+                </td>
 
                 <td className="px-4 py-3">
                   {item.status ? (
@@ -253,5 +270,4 @@ const StudentAssesmentPage= () => {
   );
 };
 
-export default StudentAssesmentPage
-
+export default StudentAssesmentPage;

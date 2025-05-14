@@ -3,7 +3,7 @@ import InstructorDash from '../pages/instructor/InstructorDash'
 import InstructorLayout from '../pages/instructor/InstructorLayout';
 import InstructorCourses from '../pages/instructor/InstructorCourses';
 import InstructorAssessments from '../pages/instructor/InstructorAssessments';
-import InstructorChat from '../pages/instructor/InstructorChat';
+
 
 import ProfilePage from '../pages/common/ProfilePage';
 import CreateCourse from '../pages/instructor/Course/CreateCourse';
@@ -11,6 +11,7 @@ import CourseDetails from '../pages/common/CourseDetails';
 import CourseForm from '../pages/instructor/Course/CourseForm';
 import PaymentHistory from '../pages/student/PaymentHistory';
 import StudentAssesmentPage from '../pages/instructor/Assessments/StudentAssesmentPage';
+import StudentsChat from '../pages/student/StudentsChat';
 // import ProfileEditPage from '../pages/common/ProfileEditPage';
 
 export default function InstructorRoutes() {
@@ -22,7 +23,7 @@ export default function InstructorRoutes() {
             <Route path="courses" element={<InstructorCourses />} />
             <Route path="allcourses" element={<InstructorCourses />} />
             <Route path="assessments" element={< InstructorAssessments/>} />
-            <Route path="messages" element={<InstructorChat />} />
+            <Route path="messages" element={<StudentsChat/ >} />
             <Route path="payment" element={<PaymentHistory />} />
             <Route path="create-course" element={<CreateCourse />} />
             <Route path="courses/:id" element={<CourseDetails />} />

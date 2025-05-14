@@ -31,6 +31,7 @@ import StudentFailurePage from "./pages/student/StudentFailurePage";
 
 
 
+
 function App() {
   return (
     <ThemeProvider>
@@ -92,6 +93,7 @@ function AppContent() {
           {/* <Route path="/courses" element={<Courses />} /> */}
           <Route path="/courses" element={<InstructorCourses/>} />
           <Route path="/detailcourses/:id" element={<CourseDetails/>} />
+          {/* <Route path="/reviewbeforelogin/:id" element={<ReviewSection/>} /> */}
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/login" element={<Login />} />

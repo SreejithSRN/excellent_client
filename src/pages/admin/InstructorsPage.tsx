@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search} from "lucide-react";
 
 import { useAppDispatch } from "../../hooks/accessHook";
 import { getInstructors } from "../../redux/store/actions/auth/getInstructors"; // Replace with your actual action
@@ -7,8 +7,13 @@ import { SignupFormData } from "../../types";
 import { blockUnblock } from "../../redux/store/actions/auth/blockUnblock";
 import { approveReject } from "../../redux/store/actions/auth";
 import ConfirmationModal from "../../components/admin/ConfirmationModal";
+import { useSocketContext } from "../../utilities/socket/SocketContext";
 
 const InstructorsPage = () => {
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
   const [data, setData] = useState<SignupFormData[]>([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -18,6 +23,19 @@ const InstructorsPage = () => {
   const [status, setStatus] = useState({ loading: true, error: "" });
 
   const dispatch = useAppDispatch();
+  const {socket}=useSocketContext()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1, // Reset to first page on new search
+      }));
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms debounce
+  
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const fetchInstructors = useCallback(async () => {
     setStatus((prev) => ({ ...prev, loading: true, error: "" }));
@@ -25,7 +43,7 @@ const InstructorsPage = () => {
     try {
       const { currentPage, instructorsPerPage } = pagination;
       const response = await dispatch(
-        getInstructors({ page: currentPage, limit: instructorsPerPage })
+        getInstructors({ page: currentPage, limit: instructorsPerPage,search: debouncedSearchTerm, })
       );
 
       if (response && response.payload) {
@@ -48,7 +66,7 @@ const InstructorsPage = () => {
     } finally {
       setStatus((prev) => ({ ...prev, loading: false }));
     }
-  }, [dispatch, pagination.currentPage, pagination.instructorsPerPage]);
+  }, [dispatch, pagination.currentPage, pagination.instructorsPerPage,debouncedSearchTerm]);
 
   useEffect(() => {
     fetchInstructors();
@@ -98,6 +116,17 @@ const InstructorsPage = () => {
               : instructor
           )
         );
+          // Find the user's _id based on the email
+      const user = data.find((student) => student.email === email);
+      console.log("arada neee moNNEEEEEEEE",user)
+
+      // Emit socket event with _id and status
+      if (socket && user?._id) {
+        socket.emit("block-user", {
+          userId: user._id,
+          // isBlocked: !user.isBlocked, // updated status
+        });
+      }
       } else {
         console.error("Failed to update student status");
       }
@@ -126,15 +155,17 @@ const InstructorsPage = () => {
         <div className="relative w-64">
           <input
             type="text"
-            placeholder="Search instructors..."
+            placeholder="Email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") fetchInstructors(); 
+            }}
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
           />
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
         </div>
-        <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-          <Filter className="w-5 h-5" />
-          <span>Filter</span>
-        </button>
+       
       </div>
 
       {/* Table or Loading/Error/Empty State */}
@@ -270,23 +301,7 @@ const InstructorsPage = () => {
                       {instructor.isBlocked ? "Blocked" : "Active"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 space-y-2">
-                    {/* Approve/Reject Button with Confirmation Modal */}
-                    {/* <ConfirmationModal
-                      triggerText={instructor.isRejected ? "Approve" : "Reject"}
-                      title={`${
-                        instructor.isRejected ? "Approve" : "Reject"
-                      } Instructor`}
-                      description={`Are you sure you want to ${
-                        instructor.isRejected ? "approve" : "reject"
-                      } ${
-                        instructor.firstName ||
-                        instructor.name ||
-                        "this instructor"
-                      }?`}
-                      status={instructor.isRejected ? "approve" : "reject"}
-                      onConfirm={() => handleApprovalToggle(instructor.email)}
-                    /> */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 space-y-2">                  
 
                     <ConfirmationModal
                       triggerText={instructor.isRejected ? "Approve" : "Reject"}

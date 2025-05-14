@@ -10,6 +10,8 @@ import { blockUnblockCat } from "../../redux/store/actions/course/blockUnblockCa
 import ConfirmationModal from "../../components/admin/ConfirmationModal";
 
 const CategoriesPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [data, setData] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
@@ -21,13 +23,29 @@ const CategoriesPage = () => {
   const [status, setStatus] = useState({ loading: true, error: "" });
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchCategories();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [searchTerm, pagination.currentPage, pagination.categoryPerPage]);
+  useEffect(() => {
+    setPagination((prev) => ({
+      ...prev,
+      currentPage: 1,
+    }));
+  }, [searchTerm]);
+  
+  
+  
+
   const fetchCategories = useCallback(async () => {
     setStatus((prev) => ({ ...prev, loading: true, error: "" }));
 
     try {
       const { currentPage, categoryPerPage } = pagination;
       const response = await dispatch(
-        getCategories({ page: currentPage, limit: categoryPerPage })
+        getCategories({ page: currentPage, limit: categoryPerPage,search: searchTerm })
       );
 
       console.log(response, "iam the category details from categorypage...");
@@ -52,11 +70,9 @@ const CategoriesPage = () => {
     } finally {
       setStatus((prev) => ({ ...prev, loading: false }));
     }
-  }, [dispatch, pagination.currentPage, pagination.categoryPerPage]);
+  }, [dispatch, pagination.currentPage, pagination.categoryPerPage,searchTerm]);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+console.log(searchTerm,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
   const { currentPage, categoryPerPage, totalCount } = pagination;
   const totalPages = Math.ceil(totalCount / categoryPerPage);
@@ -105,11 +121,14 @@ const CategoriesPage = () => {
       {/* Search Section */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="Search categories..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
-          />
+        <input
+  type="text"
+  placeholder="Search categories..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
+/>
+
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
         </div>
         <div className="flex items-center space-x-4">
@@ -237,3 +256,4 @@ const CategoriesPage = () => {
 };
 
 export default CategoriesPage;
+

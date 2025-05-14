@@ -5,6 +5,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+
 import { Clock, PlayCircle, Loader2 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/accessHook";
 import { CourseEntity } from "../../types/ICourse";
@@ -21,23 +22,32 @@ import { AssessmentModal } from "../instructor/Assessments/AssessmentModal";
 interface SessionReciever {
   id: string;
 }
+interface CourseData {
+  _id: string;
+  title: string;
+  pricing?: { amount: number };
+  lessons: Array<any>;
+  assessment?: {
+    _id: string;
+    questions: any[];
+  };
+}
 
 const CourseDetails = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [hasAssessment, setHasAssessment] = useState<boolean>(false);
+
   const [course, setCourse] = useState<CourseEntity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { data } = useSelector((state: RootState) => state.user);
 
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-
-
-
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   const isCourseDetailPage = matchPath(
     "/student/mycourses/:id",
@@ -48,7 +58,6 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
     "/instructor/courses/:id",
     location.pathname
   );
-  
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -60,7 +69,28 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
         const response = await dispatch(getCoursesById(id));
 
         if (response.payload.success) {
-          setCourse(response.payload.data);
+          const courseData = response.payload.data;
+          setCourse(courseData);
+
+          // After course is fetched, now fetch assessment
+          if (data?._id && courseData?._id) {
+            try {
+              const response = await commonRequest<CourseData[]>(
+                "GET",
+                `${URL}/api/course/assessmentList/${data._id}`,
+                config
+              );
+
+              if (response?.data) {
+                const courseAssessment = response.data.find(
+                  (assessment) => assessment._id === courseData._id
+                );
+                setHasAssessment(!!courseAssessment);
+              }
+            } catch (err) {
+              console.error("Error fetching assessment list:", err);
+            }
+          }
         } else {
           setError("Failed to load course details.");
         }
@@ -73,7 +103,7 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
     };
 
     fetchCourse();
-  }, [dispatch, id]);
+  }, [dispatch, id, data?._id, hasAssessment]);
 
   console.log(course, " tatatatata");
 
@@ -102,8 +132,7 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
         const details = {
           studentId: data?._id,
           courseId: course?._id,
-        };
-        console.log(details, "Verification for data in free enrollment");
+        };        
         const freeEnrollment = await commonRequest(
           "POST",
           `${URL}/api/course/createEnrollment`,
@@ -112,6 +141,13 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
         );
 
         if (freeEnrollment.success) {
+          await commonRequest(
+            "POST",
+            `${URL}/api/chat/addtochatroom`,
+            details,
+            config)
+
+
           navigate("/student/mycourses", {
             state: { message: freeEnrollment.message },
             replace: true,
@@ -122,6 +158,10 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
           console.error("Invalid course ID");
           return;
         }
+        const details = {
+          studentId: data?._id,
+          courseId: course?._id,
+        }; 
         console.log(courseId, "Handling paid enrollment");
 
         const stripe = await loadStripe(
@@ -151,11 +191,17 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
           stripe.redirectToCheckout({
             sessionId: response?.data?.id,
           });
+          await commonRequest(
+            "POST",
+            `${URL}/api/chat/addtochatroom`,
+            details,
+            config)
+
         }
       }
     } catch (error) {
       console.error("Error handling enrollment:", error);
-    }    
+    }
   };
 
   if (loading)
@@ -180,9 +226,6 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
           : "max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"
       }
     >
-
-
-      
       <ToastContainer />
       {/* Course Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
@@ -247,9 +290,9 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
         {course.lessons && course.lessons.length > 0 ? (
           <ul className="mt-4 space-y-4">
             {(isCourseDetailPage
-              ? course.lessons 
+              ? course.lessons
               : data?.role === "student" || !data
-              ? course.lessons.slice(0, 1) 
+              ? course.lessons.slice(0, 1)
               : course.lessons
             ).map((lesson) => (
               <li
@@ -265,7 +308,7 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
                 <a
                   href={
                     lesson.video instanceof File
-                      ? URL.createObjectURL(lesson.video)
+                      ? window.URL.createObjectURL(lesson.video)
                       : lesson.video || "#"
                   }
                   target="_blank"
@@ -282,65 +325,62 @@ const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
           <p className="text-gray-500 mt-4">No lessons available.</p>
         )}
       </div>
-
       {!isCourseDetailPage && (
         <div className="flex justify-center mt-6">
           {!course.isBlocked && (!data || data?.role === "student") && (
-            <button
-              onClick={() => handleEnrollment(course._id ?? "")}
-              className="px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-            >
-              Buy this Course
-            </button>
+            <>
+              <button
+                onClick={() => handleEnrollment(course._id ?? "")}
+                className="px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              >
+                Buy this Course
+              </button>
+              <button
+                onClick={() => navigate(`/student/reviews/${course._id}`)} // navigate to reviews page
+                className="ml-4 px-6 py-2 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+              >
+                View Reviews
+              </button>
+            </>
           )}
         </div>
       )}
 
       {data?.role === "instructor" &&
-  isInstructorCoursePage &&
-  course.instructorRef &&
-  data._id === course.instructorRef._id && (
-    <div className="mt-8 border-t pt-6">
-      <h2 className="text-xl font-semibold mb-2">Instructor Tools</h2>
-      <button
-        onClick={() => {
-          setSelectedCourseId(course._id ?? null);
-          setIsModalOpen(true);
-        }}
-        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-      >
-        Create Assessment
-      </button>
-    </div>
-)}
+        isInstructorCoursePage &&
+        course.instructorRef &&
+        data._id === course.instructorRef._id && (
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-xl font-semibold mb-2">Instructor Tools</h2>
+            <div className="flex items-center justify-center gap-4">
+              {hasAssessment ? (
+                <div className="px-6 py-2 bg-green-600 text-white rounded-lg">
+                  Already have Assessment
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSelectedCourseId(course._id ?? null);
+                    setIsModalOpen(true);
+                  }}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                >
+                  Create Assessment
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
-
-{isModalOpen && selectedCourseId && (
-  <AssessmentModal
-    courseId={selectedCourseId}
-    onClose={() => setIsModalOpen(false)}
-  />
-)}
-
-
-
+      {isModalOpen && selectedCourseId && (
+        <AssessmentModal
+          courseId={selectedCourseId}
+          onClose={() => setIsModalOpen(false)}
+          onAssessmentCreated={() => setHasAssessment(true)}
+        />
+      )}
     </div>
   );
 };
 
-
-
 export default CourseDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-

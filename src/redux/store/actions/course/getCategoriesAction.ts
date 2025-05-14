@@ -6,7 +6,7 @@ import { CLIENT_API } from "../../../../utilities/axios/instance";
 export const getCategories = createAsyncThunk(
   "course/getCategories",
   async (
-    { page, limit }: { page: number; limit: number },
+    { page, limit,search }: { page: number; limit: number; search?:string },
     { rejectWithValue }
   ) => {
     try {
@@ -14,6 +14,7 @@ export const getCategories = createAsyncThunk(
         params: {
           page,
           limit,
+          search
         },
         ...config,
       });
