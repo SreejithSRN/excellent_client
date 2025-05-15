@@ -11,7 +11,7 @@ export const getUserDataAction = createAsyncThunk(
       const response = await CLIENT_API.get("/api/auth/getUserData", config);
       console.log(
         response,
-        "iam from getUserData Action in redux..................."
+        "iam from getUserData Action in reduxsssssssssssss..................."
       );
       if (response.data.success) {
         return response.data;
